@@ -1,0 +1,13 @@
+[package]
+name = "three_sort"
+version = "0.1.0"
+authors = ["Carl Scherer <Lireer@user.noreply.github.com>"]
+edition = "2018"
+
+[dev-dependencies]
+criterion = "0.3.3"
+proptest = "0.10.1"
+
+[[bench]]
+name = "three_sorts"
+harness = false
