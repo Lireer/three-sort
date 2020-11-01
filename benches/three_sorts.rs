@@ -1,9 +1,9 @@
-use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion};
 use three_sort::*;
 
 fn bench_sorts(c: &mut Criterion) {
     let mut group = c.benchmark_group("Sorts");
-    let samples: [[u8; 3]; 6] = [
+    let samples: [[u64; 3]; 6] = [
         [0, 1, 2],
         [0, 2, 1],
         [1, 0, 2],
@@ -12,19 +12,40 @@ fn bench_sorts(c: &mut Criterion) {
         [2, 1, 0],
     ];
     for (i, slice) in samples.iter().enumerate() {
-        let mut test_slice = slice.clone();
-        // group.bench_function(BenchmarkId::new("std_sort_u8", i), |b| {
-        //     b.iter(|| std_sort(&mut slice))
-        // });
-        // group.bench_function(BenchmarkId::new("std_sort_unstable_u8", i), |b| {
-        //     b.iter(|| std_sort_unstable(&mut slice))
-        // });
-        group.bench_function(BenchmarkId::new("sort_if_else", i), |b| {
-            b.iter(|| sort_if_else(&mut test_slice))
+        group.bench_function(BenchmarkId::new("std_sort_unstable", i), |b| {
+            b.iter_batched_ref(
+                || slice.clone(),
+                |mut slice| std_sort_unstable(&mut slice),
+                BatchSize::SmallInput,
+            )
         });
-        let mut test_slice = slice.clone();
-        group.bench_function(BenchmarkId::new("sort_match", i), |b| {
-            b.iter(|| sort_if_else(&mut test_slice))
+        group.bench_function(BenchmarkId::new("bubble_sort", i), |b| {
+            b.iter_batched_ref(
+                || slice.clone(),
+                |mut slice| bubble_sort(&mut slice),
+                BatchSize::SmallInput,
+            )
+        });
+        group.bench_function(BenchmarkId::new("if_else_sort", i), |b| {
+            b.iter_batched_ref(
+                || slice.clone(),
+                |mut slice| if_else_sort(&mut slice),
+                BatchSize::SmallInput,
+            )
+        });
+        group.bench_function(BenchmarkId::new("match_sort", i), |b| {
+            b.iter_batched_ref(
+                || slice.clone(),
+                |mut slice| match_sort(&mut slice),
+                BatchSize::SmallInput,
+            )
+        });
+        group.bench_function(BenchmarkId::new("min_max_sort", i), |b| {
+            b.iter_batched_ref(
+                || slice.clone(),
+                |mut slice| min_max_sort_u64(&mut slice),
+                BatchSize::SmallInput,
+            )
         });
     }
 }
